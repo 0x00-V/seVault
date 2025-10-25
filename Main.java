@@ -11,11 +11,13 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Scanner;
-
 import java.util.*;
 import java.nio.file.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+
+
 
 public class Main{
     private static final int SALT_LENGTH = 16;
@@ -36,6 +38,7 @@ public class Main{
         }
     }
 
+
     private static byte[] deriveKeyPBKDF2(char[] password, byte[] salt, int iterations, int keyLenBits) throws Exception{
         PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLenBits);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
@@ -43,6 +46,7 @@ public class Main{
         spec.clearPassword();
         return key;
     }
+
 
     private static byte[] aesGcmEncrypt(byte[] keyBytes, byte[] iv, byte[] plaintext, byte[] aad) throws Exception{
         SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
@@ -53,6 +57,7 @@ public class Main{
         return c.doFinal(plaintext);
     }
 
+
     private static byte[] aesGcmDecrypt(byte[] keyBytes, byte[] iv, byte[] ciphertextAndTag, byte[] aad) throws Exception{
         SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
         Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
@@ -62,6 +67,7 @@ public class Main{
         return c.doFinal(ciphertextAndTag);
     }
 
+
     public static Path vaultFile = Paths.get("vault");
 
 
@@ -69,19 +75,21 @@ public class Main{
         private String website;
         private String username;
         private String password;
-
         public Credential(String website, String username, String password){
             this.website = website;
             this.username = username;
-            this.password = password;
-        }
+            this.password = password; }
         public String getWebsite() { return website; }
         public String getUsername() { return username; }
         public String getPassword() { return password; }
     }
+
+
     public static void vaultHelp(){
         System.out.println("Helping you now...");
     }
+
+
     public static byte[] jsonBytes;
     public static void gatherCredentials(){
         Scanner in = new Scanner(System.in);
@@ -108,6 +116,8 @@ public class Main{
         System.out.println(jsonString);
 
     }
+
+
     public static void addCredential() throws Exception{
         Scanner in = new Scanner(System.in);
         System.out.println("Adding credential...");
@@ -147,9 +157,13 @@ public class Main{
 
 
     }
+
+
     public static void removeCredential() throws Exception{
         System.out.println("Removing credential...");
     }
+
+
     public static void viewCredentials(){
         if (!Files.exists(vaultFile)){
             System.out.println("Vault is empty");
@@ -189,14 +203,22 @@ public class Main{
         }
     }
 
-    public static void main(String[] args) throws Exception{
+
+    public static void vaultCheck(String[] args) throws Exception{
         if(args.length < 1){ System.out.println("Incorrect usage.\n");
             System.exit(0);
         }
-        if(!Files.exists(vaultFile)) { initVault(vaultFile); } else {
+        if(!Files.exists(vaultFile)){
+            initVault(vaultFile);
+        }else{
             setKey();
         }
-        for(int i = 0; i < args.length; i++) {
+    }
+
+
+    public static void main(String[] args) throws Exception{
+
+        for(int i = 0; i < args.length; i++){
             switch (args[i]) {
                 case "--help":
                 case "-h":
@@ -204,6 +226,7 @@ public class Main{
                     break;
                 case "--add-credential":
                 case "-ac":
+                    vaultCheck(args);
                     addCredential();
                     break;
                 case "--remove-credential":
@@ -211,6 +234,7 @@ public class Main{
                     break;
                 case "--view-credentials":
                 case "-vc":
+                    vaultCheck(args);
                     viewCredentials();
                     break;
                 default:
